@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "brand-checkin",
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": ["server.js"],
+      "cwd": "/Users/phil/Desktop/brand-check",
+      "port": 3000
+    }
+  ]
+}

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand Checkin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --border: #2a2a2a;
+      --accent: #c8f55a;
+      --accent-dark: #a8d43a;
+      --text: #f0f0f0;
+      --muted: #888;
+      --error: #ff5c5c;
+      --success: #4caf7d;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #000;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-sub {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .apply-btn-header {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.2px;
+    }
+
+    .apply-btn-header:hover { background: var(--accent-dark); }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      header { padding: 16px 20px; }
+      .hero h1 { font-size: 26px; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .card-title span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 8px;
+      vertical-align: middle;
+      margin-bottom: 1px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      margin-top: 14px;
+    }
+
+    label:first-of-type { margin-top: 0; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="file"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="file"] {
+      padding: 9px 14px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    input[type="file"]::file-selector-button {
+      background: var(--border);
+      border: none;
+      border-radius: 6px;
+      color: var(--text);
+      padding: 5px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover { border-color: var(--muted); }
+
+    .result {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .result.show { display: block; }
+
+    .result.found {
+      background: rgba(76, 175, 125, 0.1);
+      border: 1px solid rgba(76, 175, 125, 0.3);
+    }
+
+    .result.not-found {
+      background: rgba(255, 92, 92, 0.1);
+      border: 1px solid rgba(255, 92, 92, 0.3);
+    }
+
+    .result.success-msg {
+      background: rgba(76, 175, 125, 0.1);
+      border: 1px solid rgba(76, 175, 125, 0.3);
+      color: var(--success);
+    }
+
+    .result.error-msg {
+      background: rgba(255, 92, 92, 0.1);
+      border: 1px solid rgba(255, 92, 92, 0.3);
+      color: var(--error);
+    }
+
+    .result-status {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-status.verified { color: var(--success); }
+    .result-status.unverified { color: var(--error); }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-label { color: var(--muted); }
+    .result-value { font-weight: 600; text-align: right; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      display: none;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+    }
+
+    .modal h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    .modal-close:hover { color: var(--text); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0 24px;
+    }
+
+    .how-it-works {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-top: 24px;
+    }
+
+    .how-it-works h3 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+
+    .step {
+      font-size: 13px;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .step-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      color: var(--muted);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">B</div>
+    <div>
+      <div class="logo-text">Brand Checkin</div>
+      <div class="logo-sub">by Stealth Talent</div>
+    </div>
+  </div>
+  <button class="apply-btn-header" onclick="openModal()">Apply to Join</button>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Verify before you engage.</h1>
+    <p>Check if a brand contact's email is in our database of verified, paying deals — submitted by fellow talent managers.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- Search Card -->
+    <div class="card">
+      <div class="card-title"><span></span>Check an Email</div>
+
+      <label for="search-email">Brand contact email</label>
+      <input type="email" id="search-email" placeholder="name@brand.com" autocomplete="off" />
+
+      <button class="btn btn-primary" id="search-btn" onclick="searchEmail()">Check Email</button>
+
+      <div class="result" id="search-result"></div>
+    </div>
+
+    <!-- Submit Card -->
+    <div class="card">
+      <div class="card-title"><span></span>Submit a Verified Deal</div>
+
+      <label for="manager-code">Your 6-character code</label>
+      <input type="text" id="manager-code" placeholder="e.g. MGMT01" maxlength="6" autocomplete="off" />
+
+      <label for="brand-name">Brand name</label>
+      <input type="text" id="brand-name" placeholder="e.g. Nike" />
+
+      <label for="person-name">Contact's full name</label>
+      <input type="text" id="person-name" placeholder="e.g. Jane Smith" />
+
+      <label for="submit-email">Contact's email</label>
+      <input type="email" id="submit-email" placeholder="jane@nike.com" autocomplete="off" />
+
+      <button class="btn btn-primary" id="submit-btn" onclick="submitDeal()">Submit Deal</button>
+
+      <div class="result" id="submit-result"></div>
+    </div>
+
+  </div>
+
+  <div class="how-it-works">
+    <h3>How it works</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Managers submit</div>
+        <div class="step-desc">When a brand deal pays out, submit the contact's email with your unique code.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Community grows</div>
+        <div class="step-desc">Every entry builds a shared database of verified, legitimate brand contacts.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Everyone checks</div>
+        <div class="step-desc">Before engaging, search the email to see if it's been verified by another manager.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Apply Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h2>Apply to Join</h2>
+    <p>Send your info and creator roster to the Stealth Talent team.</p>
+
+    <label for="apply-name">Your full name</label>
+    <input type="text" id="apply-name" placeholder="Your name" />
+
+    <label for="apply-email">Your email</label>
+    <input type="email" id="apply-email" placeholder="you@agency.com" />
+
+    <label for="apply-phone">Your phone number</label>
+    <input type="tel" id="apply-phone" placeholder="+1 (555) 000-0000" />
+
+    <label for="apply-roster">Creator roster (CSV)</label>
+    <input type="file" id="apply-roster" accept=".csv" />
+
+    <button class="btn btn-primary" id="apply-btn" onclick="submitApplication()">Send Application</button>
+
+    <div class="result" id="apply-result"></div>
+  </div>
+</div>
+
+<script>
+  function openModal() {
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.getElementById('apply-result').className = 'result';
+    document.getElementById('apply-result').innerHTML = '';
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  async function searchEmail() {
+    const email = document.getElementById('search-email').value.trim();
+    const result = document.getElementById('search-result');
+    const btn = document.getElementById('search-btn');
+
+    if (!email) {
+      showResult(result, 'error-msg', 'Please enter an email address.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+
+    try {
+      const res = await fetch(`/api/search?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+
+      if (data.found) {
+        result.className = 'result found show';
+        result.innerHTML = `
+          <div class="result-status verified">&#10003; Verified — in database</div>
+          <div class="result-row">
+            <span class="result-label">Brand</span>
+            <span class="result-value">${esc(data.brandName)}</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Contact</span>
+            <span class="result-value">${esc(data.personName)}</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Submitted by</span>
+            <span class="result-value">Manager ${esc(data.managerCode)}</span>
+          </div>
+        `;
+      } else {
+        result.className = 'result not-found show';
+        result.innerHTML = `
+          <div class="result-status unverified">&#10007; Not in database</div>
+          <div style="color: var(--muted); font-size: 13px; margin-top: 6px;">
+            This email hasn't been submitted by any talent manager yet. Proceed with caution.
+          </div>
+        `;
+      }
+    } catch (e) {
+      showResult(result, 'error-msg', 'Something went wrong. Please try again.');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Check Email';
+  }
+
+  async function submitDeal() {
+    const managerCode = document.getElementById('manager-code').value.trim();
+    const brandName = document.getElementById('brand-name').value.trim();
+    const personName = document.getElementById('person-name').value.trim();
+    const email = document.getElementById('submit-email').value.trim();
+    const result = document.getElementById('submit-result');
+    const btn = document.getElementById('submit-btn');
+
+    if (!managerCode || !brandName || !personName || !email) {
+      showResult(result, 'error-msg', 'All fields are required.');
+      return;
+    }
+
+    if (managerCode.length !== 6) {
+      showResult(result, 'error-msg', 'Your manager code must be exactly 6 characters.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ managerCode, brandName, personName, email })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showResult(result, 'success-msg', '&#10003; Deal submitted successfully. Thank you for contributing.');
+        document.getElementById('brand-name').value = '';
+        document.getElementById('person-name').value = '';
+        document.getElementById('submit-email').value = '';
+      } else {
+        showResult(result, 'error-msg', data.error || 'Submission failed.');
+      }
+    } catch (e) {
+      showResult(result, 'error-msg', 'Something went wrong. Please try again.');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Submit Deal';
+  }
+
+  async function submitApplication() {
+    const name = document.getElementById('apply-name').value.trim();
+    const email = document.getElementById('apply-email').value.trim();
+    const phone = document.getElementById('apply-phone').value.trim();
+    const roster = document.getElementById('apply-roster').files[0];
+    const result = document.getElementById('apply-result');
+    const btn = document.getElementById('apply-btn');
+
+    if (!name || !email || !phone) {
+      showResult(result, 'error-msg', 'Name, email, and phone are required.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    if (roster) formData.append('roster', roster);
+
+    try {
+      const res = await fetch('/api/apply', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (res.ok) {
+        showResult(result, 'success-msg', '&#10003; Application sent! The team will be in touch.');
+        document.getElementById('apply-name').value = '';
+        document.getElementById('apply-email').value = '';
+        document.getElementById('apply-phone').value = '';
+        document.getElementById('apply-roster').value = '';
+      } else {
+        showResult(result, 'error-msg', data.error || 'Failed to send. Please try again.');
+      }
+    } catch (e) {
+      showResult(result, 'error-msg', 'Something went wrong. Please try again.');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send Application';
+  }
+
+  function showResult(el, type, html) {
+    el.className = `result ${type} show`;
+    el.innerHTML = html;
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // Allow Enter key on search
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('search-email').addEventListener('keydown', e => {
+      if (e.key === 'Enter') searchEmail();
+    });
+  });
+</script>
+
+</body>
+</html>
