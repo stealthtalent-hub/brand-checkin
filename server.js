@@ -85,6 +85,68 @@ app.get('/api/search', (req, res) => {
   }
 });
 
+// Bulk CSV import
+app.post('/api/bulk-submit', upload.single('csv'), (req, res) => {
+  const { managerCode } = req.body;
+
+  if (!managerCode || managerCode.trim().length !== 6) {
+    return res.status(400).json({ error: 'A valid 6-character manager code is required.' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'A CSV file is required.' });
+  }
+
+  const lines = req.file.buffer.toString('utf8').split('\n').map(l => l.trim()).filter(Boolean);
+
+  if (lines.length < 2) {
+    return res.status(400).json({ error: 'CSV must have a header row and at least one data row.' });
+  }
+
+  // Detect header and column indexes
+  const header = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
+  const brandIdx = header.findIndex(h => h.includes('brand'));
+  const nameIdx  = header.findIndex(h => h.includes('name') || h.includes('contact') || h.includes('person'));
+  const emailIdx = header.findIndex(h => h.includes('email'));
+
+  if (brandIdx === -1 || nameIdx === -1 || emailIdx === -1) {
+    return res.status(400).json({ error: 'CSV must have columns for brand, name, and email. Check the template.' });
+  }
+
+  const deals = readDeals();
+  let added = 0, skipped = 0, errors = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim().replace(/"/g, ''));
+    const brandName  = cols[brandIdx] || '';
+    const personName = cols[nameIdx]  || '';
+    const email      = (cols[emailIdx] || '').toLowerCase();
+
+    if (!brandName || !personName || !email || !email.includes('@')) {
+      errors.push(`Row ${i + 1}: missing or invalid data`);
+      skipped++;
+      continue;
+    }
+
+    if (deals.find(d => d.email === email)) {
+      skipped++;
+      continue;
+    }
+
+    deals.push({
+      managerCode: managerCode.trim(),
+      brandName,
+      personName,
+      email,
+      submittedAt: new Date().toISOString()
+    });
+    added++;
+  }
+
+  writeDeals(deals);
+  res.json({ success: true, added, skipped, errors });
+});
+
 // Send application email
 app.post('/api/apply', upload.single('roster'), async (req, res) => {
   const { name, email, phone } = req.body;

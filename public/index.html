@@ -450,6 +450,26 @@
 
   </div>
 
+  <!-- Bulk Import Card -->
+  <div class="card" style="margin-top: 24px;">
+    <div class="card-title"><span></span>Bulk Import via CSV</div>
+    <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px;">
+      Have a lot of contacts? Upload a CSV with columns: <strong style="color: var(--text);">brand, name, email</strong>
+      &nbsp;—&nbsp;
+      <a href="/template.csv" download style="color: var(--accent); text-decoration: none;">Download template</a>
+    </p>
+
+    <label for="bulk-code">Your 6-character code</label>
+    <input type="text" id="bulk-code" placeholder="e.g. MGMT01" maxlength="6" autocomplete="off" />
+
+    <label for="bulk-csv">CSV file</label>
+    <input type="file" id="bulk-csv" accept=".csv" />
+
+    <button class="btn btn-primary" id="bulk-btn" onclick="bulkSubmit()">Import CSV</button>
+
+    <div class="result" id="bulk-result"></div>
+  </div>
+
   <div class="how-it-works">
     <h3>How it works</h3>
     <div class="steps">
@@ -649,6 +669,47 @@
 
     btn.disabled = false;
     btn.textContent = 'Send Application';
+  }
+
+  async function bulkSubmit() {
+    const managerCode = document.getElementById('bulk-code').value.trim();
+    const file = document.getElementById('bulk-csv').files[0];
+    const result = document.getElementById('bulk-result');
+    const btn = document.getElementById('bulk-btn');
+
+    if (!managerCode || managerCode.length !== 6) {
+      showResult(result, 'error-msg', 'Your manager code must be exactly 6 characters.');
+      return;
+    }
+    if (!file) {
+      showResult(result, 'error-msg', 'Please select a CSV file.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Importing...';
+
+    const formData = new FormData();
+    formData.append('managerCode', managerCode);
+    formData.append('csv', file);
+
+    try {
+      const res = await fetch('/api/bulk-submit', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (res.ok) {
+        showResult(result, 'success-msg',
+          `&#10003; Import complete — <strong>${data.added}</strong> added, <strong>${data.skipped}</strong> skipped (duplicates or invalid).`
+        );
+        document.getElementById('bulk-csv').value = '';
+      } else {
+        showResult(result, 'error-msg', data.error || 'Import failed.');
+      }
+    } catch (e) {
+      showResult(result, 'error-msg', 'Something went wrong. Please try again.');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Import CSV';
   }
 
   function showResult(el, type, html) {
