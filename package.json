@@ -1,12 +1,17 @@
 {
   "name": "brand-check",
   "version": "1.0.0",
-  "description": "Brand verification tool for talent managers",
+  "description": "Brand verification tool for talent managers (+ personal health app under /health)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "health": "node health/server.js",
+    "start:health": "node health/server.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.0",
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
     "express": "^4.18.2",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7"

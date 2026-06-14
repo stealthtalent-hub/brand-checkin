@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
+  <title>Vitals — Personal Health</title>
+  <meta name="theme-color" content="#0f1b17" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vitals" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Login -->
+  <div id="login" class="login hidden">
+    <div class="login-card">
+      <div class="brand"><span class="dot"></span> Vitals</div>
+      <p class="muted">Your private health space.</p>
+      <input id="passcode" type="password" inputmode="numeric" placeholder="Passcode" autocomplete="current-password" />
+      <button id="login-btn" class="primary">Enter</button>
+      <p id="login-err" class="error"></p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <div class="brand small"><span class="dot"></span> Vitals</div>
+      <div id="today-label" class="muted"></div>
+    </header>
+
+    <main id="views">
+      <!-- TODAY -->
+      <section id="view-today" class="view">
+        <div id="review-card" class="card review">
+          <div class="card-head">
+            <h2>This morning</h2>
+            <button id="refresh-review" class="ghost" title="Regenerate">↻</button>
+          </div>
+          <div id="review-body" class="review-body">Loading your briefing…</div>
+        </div>
+
+        <div class="stats-grid" id="stats-grid"></div>
+      </section>
+
+      <!-- CHAT -->
+      <section id="view-chat" class="view hidden">
+        <div id="chat-log" class="chat-log"></div>
+        <div class="quick-row" id="quick-row">
+          <button class="chip" data-water="8">+8 oz water</button>
+          <button class="chip" data-water="16">+16 oz water</button>
+          <button class="chip" data-weigh>Log weight</button>
+        </div>
+        <form id="chat-form" class="chat-input">
+          <label class="cam" for="photo">📷<input id="photo" type="file" accept="image/*" capture="environment" hidden /></label>
+          <input id="chat-text" type="text" placeholder="What did you eat or drink?" autocomplete="off" />
+          <button type="submit" class="send">↑</button>
+        </form>
+        <div id="photo-preview" class="photo-preview hidden"></div>
+      </section>
+
+      <!-- TRENDS -->
+      <section id="view-trends" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h2>Weight</h2><span id="weight-now" class="muted"></span></div>
+          <div id="chart-weight" class="chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Sleep · last 14 days</h2></div>
+          <div id="chart-sleep" class="chart bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Steps · last 14 days</h2></div>
+          <div id="chart-steps" class="chart bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Resting heart rate</h2></div>
+          <div id="chart-rhr" class="chart"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="view-settings" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h2>Apple Health sync</h2></div>
+          <p class="muted">Use the <strong>Health Auto Export</strong> iOS app to push your data here every night at midnight. See the README for the full walkthrough.</p>
+          <div class="kv"><span>Endpoint</span><code id="cfg-endpoint">—</code></div>
+          <div class="kv"><span>Header</span><code>X-Health-Token</code></div>
+          <div class="kv"><span>Token</span><code id="cfg-token">—</code></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Status</h2></div>
+          <div class="kv"><span>Timezone</span><code id="cfg-tz">—</code></div>
+          <div class="kv"><span>AI key</span><code id="cfg-key">—</code></div>
+          <div class="kv"><span>Review model</span><code id="cfg-model">—</code></div>
+        </div>
+        <button id="logout" class="ghost wide">Log out</button>
+        <p class="muted center small">Evidence-based. No wellness fads.</p>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab active" data-view="today"><span>◎</span>Today</button>
+      <button class="tab" data-view="chat"><span>✦</span>Log</button>
+      <button class="tab" data-view="trends"><span>◫</span>Trends</button>
+      <button class="tab" data-view="settings"><span>⚙</span>Settings</button>
+    </nav>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

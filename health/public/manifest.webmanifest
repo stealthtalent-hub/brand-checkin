@@ -1,0 +1,14 @@
+{
+  "name": "Vitals — Personal Health",
+  "short_name": "Vitals",
+  "description": "Private health tracking with an evidence-based daily briefing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1b17",
+  "theme_color": "#0f1b17",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
