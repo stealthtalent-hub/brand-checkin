@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Room Builder</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <div class="brand">
+        <span class="mark">◰</span>
+        <span>Data Room Builder</span>
+      </div>
+      <div id="connection" class="connection">
+        <span class="dot dot-off"></span>
+        <span class="conn-label">Checking…</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <h1>Turn a Drive folder into an investor-ready data room.</h1>
+        <p>
+          Link a company's Google Drive folder. AI organizes everything into a
+          best-practice VC due-diligence structure, tells you exactly what's
+          missing, and formats a clean index document — without touching your
+          originals.
+        </p>
+      </section>
+
+      <!-- Step 1: connect -->
+      <section class="card" id="connect-card">
+        <div class="step">Step 1</div>
+        <h2>Connect Google Drive</h2>
+        <p class="muted">Authorize access so the app can read your files and create the data room.</p>
+        <div id="connect-actions">
+          <a class="btn btn-primary" href="/auth/google">Connect Google Drive</a>
+        </div>
+        <div id="connected-actions" class="hidden">
+          <p class="connected-as">Connected as <strong id="account-email"></strong></p>
+          <button class="btn btn-ghost" id="disconnect-btn">Disconnect</button>
+        </div>
+      </section>
+
+      <!-- Step 2: configure -->
+      <section class="card" id="build-card">
+        <div class="step">Step 2</div>
+        <h2>Build the data room</h2>
+
+        <label class="field">
+          <span>Company name</span>
+          <input type="text" id="companyName" placeholder="Acme Inc." />
+        </label>
+
+        <label class="field">
+          <span>Google Drive folder link or ID</span>
+          <input type="text" id="folderUrl" placeholder="https://drive.google.com/drive/folders/…" />
+        </label>
+
+        <label class="field">
+          <span>Email the report to (optional)</span>
+          <input type="email" id="recipientEmail" placeholder="founder@acme.com" />
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="dryRun" />
+          <span>Preview only — analyze and report, but don't create folders yet</span>
+        </label>
+
+        <button class="btn btn-primary btn-block" id="run-btn" disabled>Analyze &amp; Build</button>
+        <p class="hint">Originals are copied, never moved or deleted.</p>
+      </section>
+
+      <!-- progress / results -->
+      <section id="status" class="status hidden"></section>
+      <section id="results" class="results hidden"></section>
+    </main>
+
+    <footer>Best-practice VC data room • powered by Claude</footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
