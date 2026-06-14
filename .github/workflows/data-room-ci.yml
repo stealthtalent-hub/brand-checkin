@@ -1,0 +1,30 @@
+name: data-room CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data-room/**'
+      - '.github/workflows/data-room-ci.yml'
+  pull_request:
+    paths:
+      - 'data-room/**'
+      - '.github/workflows/data-room-ci.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: data-room
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: data-room/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Smoke test (module load + pure logic)
+        run: npm run check

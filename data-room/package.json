@@ -4,7 +4,8 @@
   "description": "Link a company's Google Drive folder and let AI build a best-practice VC due-diligence data room, report the gaps, and format documents professionally.",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "check": "node scripts/smoke.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.69.0",
