@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
+const { analyze } = require('./analyze');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+// Pitch decks can be larger than the 5MB roster/CSV limit; allow up to 25MB PDFs.
+const uploadDeck = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
 function readDeals() {
   return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -199,6 +202,34 @@ app.post('/api/apply', upload.single('roster'), async (req, res) => {
   } catch (err) {
     console.error('Email send error:', err.message);
     res.status(500).json({ error: 'Failed to send application. Please try again.' });
+  }
+});
+
+// Competitive analysis: pitch text and/or an uploaded pitch deck (PDF) →
+// AI-generated competitor breakdown, checklist, positioning, and investability tips.
+app.post('/api/analyze', uploadDeck.single('deck'), async (req, res) => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error('ANTHROPIC_API_KEY not set. Competitive analysis is unavailable.');
+    return res.status(500).json({ error: 'AI service is not configured on the server.' });
+  }
+
+  const pitch = (req.body.pitch || '').trim();
+  const deck = req.file;
+
+  if (!pitch && !deck) {
+    return res.status(400).json({ error: 'Describe your product or upload a pitch deck (PDF).' });
+  }
+
+  if (deck && deck.mimetype !== 'application/pdf') {
+    return res.status(400).json({ error: 'Pitch deck must be a PDF. Export your deck to PDF and try again.' });
+  }
+
+  try {
+    const result = await analyze({ pitch, deck: deck ? deck.buffer : null });
+    res.json(result);
+  } catch (err) {
+    console.error('Analysis error:', err.message);
+    res.status(502).json({ error: 'Analysis failed. Please try again in a moment.' });
   }
 });
 

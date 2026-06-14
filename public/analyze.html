@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Competitive Analysis — Brand Checkin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface-2: #1d1d1d;
+      --border: #2a2a2a;
+      --accent: #c8f55a;
+      --accent-dark: #a8d43a;
+      --text: #f0f0f0;
+      --muted: #888;
+      --error: #ff5c5c;
+      --success: #4caf7d;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; }
+
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--accent); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: #000;
+    }
+
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .logo-sub { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+
+    .nav-link {
+      color: var(--text); text-decoration: none;
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 18px; font-size: 14px; font-weight: 600;
+      transition: border-color 0.15s;
+    }
+    .nav-link:hover { border-color: var(--muted); }
+
+    main { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+    .hero p { color: var(--muted); font-size: 15px; max-width: 560px; margin: 0 auto; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .card-title {
+      font-size: 14px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted); margin-bottom: 20px;
+    }
+    .card-title span {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); margin-right: 8px; vertical-align: middle; margin-bottom: 1px;
+    }
+
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; margin-top: 14px; }
+    label:first-of-type { margin-top: 0; }
+
+    textarea, input[type="file"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    textarea { min-height: 130px; resize: vertical; }
+    textarea:focus { border-color: var(--accent); }
+
+    input[type="file"] { padding: 9px 14px; cursor: pointer; color: var(--muted); }
+    input[type="file"]::file-selector-button {
+      background: var(--border); border: none; border-radius: 6px;
+      color: var(--text); padding: 5px 12px; font-size: 13px; cursor: pointer; margin-right: 10px;
+    }
+
+    .or-divider {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--muted); font-size: 12px; text-transform: uppercase;
+      letter-spacing: 1px; margin: 18px 0 4px;
+    }
+    .or-divider::before, .or-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .btn {
+      width: 100%; padding: 13px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 20px;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-msg {
+      margin-top: 16px; padding: 14px; border-radius: 8px; font-size: 14px;
+      background: rgba(255, 92, 92, 0.1); border: 1px solid rgba(255,92,92,0.3); color: var(--error);
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* Loading */
+    .loading { display: none; text-align: center; padding: 48px 24px; color: var(--muted); }
+    .loading.show { display: block; }
+    .spinner {
+      width: 36px; height: 36px; margin: 0 auto 18px;
+      border: 3px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-note { font-size: 13px; margin-top: 6px; }
+
+    /* Results */
+    #results { display: none; margin-top: 32px; }
+    #results.show { display: block; }
+
+    .summary {
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; margin-bottom: 24px;
+    }
+    .summary h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .summary .one-liner { font-size: 15px; color: var(--text); margin-bottom: 14px; }
+    .pill {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      background: rgba(200,245,90,0.12); color: var(--accent);
+      border: 1px solid rgba(200,245,90,0.25); border-radius: 20px; padding: 4px 12px;
+    }
+
+    .section { margin-bottom: 32px; }
+    .section-head {
+      display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px;
+    }
+    .section-head h3 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .section-head .count { font-size: 13px; color: var(--muted); }
+
+    .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .comp-grid { grid-template-columns: 1fr; } }
+
+    .comp {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .comp-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .comp-name a { color: var(--accent); font-size: 12px; font-weight: 500; text-decoration: none; }
+    .comp-name a:hover { text-decoration: underline; }
+    .comp-pos { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+    .sw-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 6px; }
+    .sw-label.s { color: var(--success); }
+    .sw-label.w { color: var(--error); }
+    .comp ul { list-style: none; margin-bottom: 12px; }
+    .comp ul li { font-size: 13px; padding: 3px 0 3px 16px; position: relative; }
+    .comp ul li::before { content: ''; position: absolute; left: 2px; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
+
+    .checklist-cat { margin-bottom: 18px; }
+    .checklist-cat h4 {
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .check-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px; margin-bottom: 8px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .check-box {
+      flex-shrink: 0; width: 18px; height: 18px; border: 2px solid var(--border);
+      border-radius: 4px; margin-top: 1px; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; color: #000;
+    }
+    .check-box.checked { background: var(--accent); border-color: var(--accent); }
+    .check-text .item-name { font-size: 14px; font-weight: 600; }
+    .check-text .item-why { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .check-item.done .check-text { opacity: 0.5; }
+    .check-item.done .item-name { text-decoration: line-through; }
+
+    .stack-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: 8px;
+      padding: 14px 16px; margin-bottom: 10px;
+    }
+    .stack-item .si-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .stack-item .si-title { font-size: 15px; font-weight: 700; }
+    .stack-item .si-rationale { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .impact {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 3px 9px; border-radius: 20px; flex-shrink: 0;
+    }
+    .impact.high { background: rgba(200,245,90,0.15); color: var(--accent); }
+    .impact.medium { background: rgba(255,255,255,0.08); color: var(--text); }
+    .impact.low { background: rgba(255,255,255,0.05); color: var(--muted); }
+
+    .reset-btn {
+      background: transparent; color: var(--muted); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .reset-btn:hover { color: var(--text); border-color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">B</div>
+    <div>
+      <div class="logo-text">Brand Checkin</div>
+      <div class="logo-sub">by Stealth Talent</div>
+    </div>
+  </div>
+  <a class="nav-link" href="/">&larr; Back to verify</a>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Pitch it. Beat the market.</h1>
+    <p>Describe your product or upload a pitch deck. AI finds your 5 biggest competitors, builds a competitive-analysis checklist, and suggests positioning and features to make your concept more investable.</p>
+  </div>
+
+  <!-- Input -->
+  <div class="card" id="input-card">
+    <div class="card-title"><span></span>Your pitch</div>
+
+    <label for="pitch">Describe your product or company</label>
+    <textarea id="pitch" placeholder="e.g. A mobile app that uses AI to create personalized meal plans for people with food allergies, generating grocery lists and ordering ingredients automatically..."></textarea>
+
+    <div class="or-divider">and / or</div>
+
+    <label for="deck">Upload a pitch deck (PDF)</label>
+    <input type="file" id="deck" accept="application/pdf,.pdf" />
+
+    <button class="btn btn-primary" id="analyze-btn" onclick="runAnalysis()">Analyze my concept</button>
+    <div class="error-msg" id="error"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div>Researching your market&hellip;</div>
+    <div class="loading-note">Finding competitors and building your analysis. This can take up to a minute.</div>
+  </div>
+
+  <!-- Results -->
+  <div id="results"></div>
+</main>
+
+<script>
+  function esc(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  async function runAnalysis() {
+    const pitch = document.getElementById('pitch').value.trim();
+    const deck = document.getElementById('deck').files[0];
+    const btn = document.getElementById('analyze-btn');
+    const errEl = document.getElementById('error');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+
+    errEl.classList.remove('show');
+
+    if (!pitch && !deck) {
+      showError('Describe your product or upload a pitch deck (PDF) to get started.');
+      return;
+    }
+    if (deck && deck.type !== 'application/pdf') {
+      showError('The deck must be a PDF. Export your deck to PDF and try again.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    results.classList.remove('show');
+    results.innerHTML = '';
+    loading.classList.add('show');
+
+    const formData = new FormData();
+    if (pitch) formData.append('pitch', pitch);
+    if (deck) formData.append('deck', deck);
+
+    try {
+      const res = await fetch('/api/analyze', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.error || 'Analysis failed. Please try again.');
+      } else {
+        renderResults(data);
+        results.classList.add('show');
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (e) {
+      showError('Something went wrong. Please try again.');
+    }
+
+    loading.classList.remove('show');
+    btn.disabled = false;
+    btn.textContent = 'Analyze my concept';
+  }
+
+  function renderResults(d) {
+    const competitors = Array.isArray(d.competitors) ? d.competitors : [];
+    const checklist = Array.isArray(d.checklist) ? d.checklist : [];
+    const positioning = Array.isArray(d.positioning) ? d.positioning : [];
+    const features = Array.isArray(d.winningFeatures) ? d.winningFeatures : [];
+    const investability = Array.isArray(d.investability) ? d.investability : [];
+
+    let html = '';
+
+    // Summary
+    html += `
+      <div class="summary">
+        <h2>${esc(d.company) || 'Your concept'}</h2>
+        ${d.oneLiner ? `<div class="one-liner">${esc(d.oneLiner)}</div>` : ''}
+        ${d.market ? `<span class="pill">${esc(d.market)}</span>` : ''}
+      </div>`;
+
+    // Competitors
+    if (competitors.length) {
+      html += `<div class="section">
+        <div class="section-head"><h3>Biggest competitors</h3><span class="count">${competitors.length} in market</span></div>
+        <div class="comp-grid">`;
+      competitors.forEach(c => {
+        const strengths = (c.strengths || []).map(s => `<li>${esc(s)}</li>`).join('');
+        const weaknesses = (c.weaknesses || []).map(w => `<li>${esc(w)}</li>`).join('');
+        const link = c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">visit &nearr;</a>` : '';
+        html += `
+          <div class="comp">
+            <div class="comp-name">${esc(c.name)} ${link}</div>
+            ${c.positioning ? `<div class="comp-pos">${esc(c.positioning)}</div>` : ''}
+            ${strengths ? `<div class="sw-label s">Strengths</div><ul>${strengths}</ul>` : ''}
+            ${weaknesses ? `<div class="sw-label w">Weaknesses</div><ul>${weaknesses}</ul>` : ''}
+          </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Checklist (grouped by category)
+    if (checklist.length) {
+      const byCat = {};
+      checklist.forEach(item => {
+        const cat = item.category || 'General';
+        (byCat[cat] = byCat[cat] || []).push(item);
+      });
+      html += `<div class="section">
+        <div class="section-head"><h3>Competitive analysis checklist</h3><span class="count">${checklist.length} items</span></div>`;
+      Object.keys(byCat).forEach(cat => {
+        html += `<div class="checklist-cat"><h4>${esc(cat)}</h4>`;
+        byCat[cat].forEach(item => {
+          html += `
+            <div class="check-item" onclick="toggleCheck(this)">
+              <div class="check-box"></div>
+              <div class="check-text">
+                <div class="item-name">${esc(item.item)}</div>
+                ${item.why ? `<div class="item-why">${esc(item.why)}</div>` : ''}
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Positioning
+    if (positioning.length) {
+      html += `<div class="section">
+        <div class="section-head"><h3>Positioning to own</h3></div>`;
+      positioning.forEach(p => {
+        html += `
+          <div class="stack-item">
+            <div class="si-head"><div class="si-title">${esc(p.angle)}</div></div>
+            ${p.rationale ? `<div class="si-rationale">${esc(p.rationale)}</div>` : ''}
+          </div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Winning features
+    if (features.length) {
+      html += `<div class="section">
+        <div class="section-head"><h3>Features that beat the market</h3></div>`;
+      features.forEach(f => {
+        const impact = (f.impact || '').toLowerCase();
+        const impClass = ['high', 'medium', 'low'].includes(impact) ? impact : 'medium';
+        html += `
+          <div class="stack-item">
+            <div class="si-head">
+              <div class="si-title">${esc(f.feature)}</div>
+              ${f.impact ? `<span class="impact ${impClass}">${esc(f.impact)}</span>` : ''}
+            </div>
+            ${f.rationale ? `<div class="si-rationale">${esc(f.rationale)}</div>` : ''}
+          </div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Investability
+    if (investability.length) {
+      html += `<div class="section">
+        <div class="section-head"><h3>Make it more investable</h3></div>`;
+      investability.forEach(i => {
+        html += `
+          <div class="stack-item">
+            <div class="si-head"><div class="si-title">${esc(i.suggestion)}</div></div>
+            ${i.rationale ? `<div class="si-rationale">${esc(i.rationale)}</div>` : ''}
+          </div>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `<button class="reset-btn" onclick="resetAll()">Analyze another concept</button>`;
+
+    document.getElementById('results').innerHTML = html;
+  }
+
+  function toggleCheck(el) {
+    el.classList.toggle('done');
+    const box = el.querySelector('.check-box');
+    box.classList.toggle('checked');
+    box.innerHTML = box.classList.contains('checked') ? '&#10003;' : '';
+  }
+
+  function resetAll() {
+    document.getElementById('pitch').value = '';
+    document.getElementById('deck').value = '';
+    const results = document.getElementById('results');
+    results.classList.remove('show');
+    results.innerHTML = '';
+    document.getElementById('input-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+
+</body>
+</html>
